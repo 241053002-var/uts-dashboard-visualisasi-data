@@ -107,7 +107,7 @@ try:
             color_discrete_sequence=PALETTE
         )
         fig1.update_layout(xaxis_title="Bulan", yaxis_title="Total Penjualan (USD)")
-        st.plotly_chart(fig1)
+        st.plotly_chart(fig1, use_container_width=True)
 
         # GRAFIK 2: PENJUALAN PER KATEGORI
         st.subheader("2. Penjualan Berdasarkan Kategori")
@@ -131,7 +131,7 @@ try:
             yaxis_title="Total Penjualan (USD)",
             showlegend=False
         )
-        st.plotly_chart(fig2)
+        st.plotly_chart(fig2, use_container_width=True)
 
         # GRAFIK 3: PROPORSI WILAYAH
         st.subheader("3. Kontribusi Penjualan per Wilayah")
@@ -150,7 +150,7 @@ try:
             title="Persentase Penjualan per Wilayah",
             color_discrete_sequence=PALETTE
         )
-        st.plotly_chart(fig3)
+        st.plotly_chart(fig3, use_container_width=True)
 
         # GRAFIK 4: HUBUNGAN PENJUALAN DAN KEUNTUNGAN
         st.subheader("4. Hubungan Penjualan dan Keuntungan")
@@ -169,7 +169,7 @@ try:
             xaxis_title="Penjualan (USD)",
             yaxis_title="Profit (USD)"
         )
-        st.plotly_chart(fig4)
+        st.plotly_chart(fig4, use_container_width=True)
 
         # INSIGHT
         st.divider()
