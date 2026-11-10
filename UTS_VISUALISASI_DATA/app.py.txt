@@ -1,0 +1,200 @@
+import streamlit as st
+import pandas as pd
+import plotly.express as px
+
+# KONFIGURASI HALAMAN
+st.set_page_config(
+    page_title="Dashboard Penjualan",
+    page_icon="📊",
+    layout="wide"
+)
+
+# JUDUL DASHBOARD
+st.title("📊 Dashboard Analisis Penjualan")
+st.caption("Visualisasi Data - Ujian Tengah Semester 2026/2027")
+
+# MEMBACA DATASET
+@st.cache_data
+def load_data():
+    df = pd.read_csv(
+        "dataset/Sample - Superstore.csv",
+        encoding="latin1"
+    )
+
+    df.columns = df.columns.str.strip()
+
+    df["Order Date"] = pd.to_datetime(
+        df["Order Date"], errors="coerce"
+    )
+
+    df["Sales"] = pd.to_numeric(df["Sales"], errors="coerce")
+    df["Profit"] = pd.to_numeric(df["Profit"], errors="coerce")
+    df["Quantity"] = pd.to_numeric(df["Quantity"], errors="coerce")
+
+    df = df.dropna(
+        subset=["Order Date", "Sales", "Profit", "Quantity"]
+    )
+
+    return df
+
+
+try:
+    df = load_data()
+
+    # SIDEBAR FILTER
+    st.sidebar.header("Filter Data")
+
+    regions = ["Semua"] + sorted(df["Region"].dropna().unique().tolist())
+    selected_region = st.sidebar.selectbox(
+        "Pilih Wilayah", regions
+    )
+
+    categories = ["Semua"] + sorted(df["Category"].dropna().unique().tolist())
+    selected_category = st.sidebar.selectbox(
+        "Pilih Kategori", categories
+    )
+
+    filtered = df.copy()
+
+    if selected_region != "Semua":
+        filtered = filtered[filtered["Region"] == selected_region]
+
+    if selected_category != "Semua":
+        filtered = filtered[filtered["Category"] == selected_category]
+
+    if filtered.empty:
+        st.warning("Tidak ada data untuk filter yang dipilih.")
+
+    else:
+        # KPI CARDS
+        st.subheader("Ringkasan Penjualan")
+
+        col1, col2, col3 = st.columns(3)
+
+        total_sales = filtered["Sales"].sum()
+        total_transactions = len(filtered)
+        average_sales = filtered["Sales"].mean()
+
+        col1.metric(
+            "Total Penjualan",
+            f"${total_sales:,.2f}"
+        )
+
+        col2.metric(
+            "Total Transaksi",
+            f"{total_transactions:,}"
+        )
+
+        col3.metric(
+            "Rata-rata Penjualan",
+            f"${average_sales:,.2f}"
+        )
+
+        st.divider()
+
+        # GRAFIK 1: TREN PENJUALAN
+        st.subheader("1. Tren Penjualan Berdasarkan Waktu")
+
+        monthly = (
+            filtered
+            .set_index("Order Date")
+            .resample("MS")["Sales"]
+            .sum()
+            .reset_index()
+        )
+
+        fig1 = px.line(
+            monthly,
+            x="Order Date",
+            y="Sales",
+            markers=True,
+            title="Tren Penjualan Bulanan"
+        )
+
+        st.plotly_chart(fig1, use_container_width=True)
+
+        # GRAFIK 2: PENJUALAN PER KATEGORI
+        st.subheader("2. Penjualan Berdasarkan Kategori")
+
+        category_sales = (
+            filtered.groupby("Category")["Sales"]
+            .sum()
+            .reset_index()
+        )
+
+        fig2 = px.bar(
+            category_sales,
+            x="Category",
+            y="Sales",
+            color="Category",
+            title="Total Penjualan per Kategori"
+        )
+
+        st.plotly_chart(fig2, use_container_width=True)
+
+        # GRAFIK 3: PROPORSI WILAYAH
+        st.subheader("3. Kontribusi Penjualan per Wilayah")
+
+        region_sales = (
+            filtered.groupby("Region")["Sales"]
+            .sum()
+            .reset_index()
+        )
+
+        fig3 = px.pie(
+            region_sales,
+            names="Region",
+            values="Sales",
+            hole=0.4,
+            title="Persentase Penjualan per Wilayah"
+        )
+
+        st.plotly_chart(fig3, use_container_width=True)
+
+        # GRAFIK 4: HUBUNGAN PENJUALAN DAN KEUNTUNGAN
+        st.subheader("4. Hubungan Penjualan dan Keuntungan")
+
+        fig4 = px.scatter(
+            filtered,
+            x="Sales",
+            y="Profit",
+            color="Category",
+            hover_data=["Product Name"],
+            title="Korelasi Sales dan Profit"
+        )
+
+        st.plotly_chart(fig4, use_container_width=True)
+
+        # INSIGHT
+        st.divider()
+        st.subheader("💡 Analisis dan Insight")
+
+        best_category = category_sales.loc[
+            category_sales["Sales"].idxmax(), "Category"
+        ]
+
+        best_region = region_sales.loc[
+            region_sales["Sales"].idxmax(), "Region"
+        ]
+
+        st.write(
+            f"""
+            - Kategori dengan total penjualan tertinggi adalah **{best_category}**.
+            - Wilayah dengan total penjualan tertinggi adalah **{best_region}**.
+            - Total penjualan berdasarkan filter yang dipilih adalah
+              **${total_sales:,.2f}**.
+            """
+        )
+
+        # TABEL DATA
+        with st.expander("Lihat Data Penjualan"):
+            st.dataframe(filtered, use_container_width=True)
+
+except FileNotFoundError:
+    st.error(
+        "Dataset tidak ditemukan. Pastikan file CSV berada "
+        "di folder dataset dengan nama Sample - Superstore.csv"
+    )
+
+except Exception as e:
+    st.error(f"Terjadi kesalahan: {e}")
