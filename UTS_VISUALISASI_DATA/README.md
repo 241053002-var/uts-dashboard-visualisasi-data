@@ -5,8 +5,8 @@
 **Mata Kuliah:** Visualisasi Data – UTS Ganjil 2026/2027
 
 ## 🔗 Tautan
-- **Live Dashboard:** [tempel link Streamlit Community Cloud]
-- **Dataset Kaggle:** [tempel link dataset]
+- **Live Dashboard:** (https://uts-dashboard-visualisasi-data.streamlit.app/)
+- **Dataset Kaggle:** https://www.kaggle.com/datasets/vivek468/superstore-dataset-final
 
 ## Latar Belakang
 Dataset Superstore dipilih karena memiliki lebih dari 1.000 data transaksi dengan berbagai informasi, seperti tanggal pemesanan, kategori produk, wilayah penjualan, jumlah penjualan, dan keuntungan. Dataset ini digunakan untuk menganalisis kategori produk dan wilayah mana yang menghasilkan penjualan serta keuntungan tertinggi, sehingga dapat membantu mengetahui strategi penjualan yang lebih efektif.
