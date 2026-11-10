@@ -22,13 +22,16 @@ st.title("📊 Dashboard Analisis Penjualan")
 st.caption("Visualisasi Data - Ujian Tengah Semester 2026/2027")
 
 
+
 # MEMBACA & MEMBERSIHKAN DATASET
 @st.cache_data
 def load_data():
-    # Cari file CSV di folder dataset (dari lokasi app.py, bukan lokasi cmd)
-    candidates = sorted(DATA_DIR.glob("*.csv*"))
+    candidates = sorted(DATA_DIR.glob("*.csv"))
+
     if not candidates:
-        raise FileNotFoundError(str(DATA_DIR))
+        raise FileNotFoundError(
+            f"Tidak ditemukan file CSV di {DATA_DIR}"
+        )
 
     df = pd.read_csv(candidates[0], encoding="latin1")
 
@@ -36,12 +39,22 @@ def load_data():
     df.columns = df.columns.str.strip()
     df = df.drop_duplicates()
 
-    df["Order Date"] = pd.to_datetime(df["Order Date"], errors="coerce")
-    df["Sales"] = pd.to_numeric(df["Sales"], errors="coerce")
-    df["Profit"] = pd.to_numeric(df["Profit"], errors="coerce")
-    df["Quantity"] = pd.to_numeric(df["Quantity"], errors="coerce")
+    df["Order Date"] = pd.to_datetime(
+        df["Order Date"], errors="coerce"
+    )
+    df["Sales"] = pd.to_numeric(
+        df["Sales"], errors="coerce"
+    )
+    df["Profit"] = pd.to_numeric(
+        df["Profit"], errors="coerce"
+    )
+    df["Quantity"] = pd.to_numeric(
+        df["Quantity"], errors="coerce"
+    )
 
-    df = df.dropna(subset=["Order Date", "Sales", "Profit", "Quantity"])
+    df = df.dropna(
+        subset=["Order Date", "Sales", "Profit", "Quantity"]
+    )
 
     return df
 
